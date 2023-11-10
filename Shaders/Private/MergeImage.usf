@@ -1,0 +1,20 @@
+#include "/Engine/Private/Common.ush"
+
+void MainVS(
+        in float4 InPosition : ATTRIBUTE0,
+        out float4 Output : SV_POSITION
+    )
+{
+    Output = InPosition;
+}
+
+    // 简单的纯色像素着色器
+float4 MyColor;
+uint InNumTextures; // Number of layers to merge into the destination texture
+Texture2D MyTexture;
+SamplerState MyTextureSampler;
+Texture2DArray<float4> InMergeTextures; // Source texture for each individual edit layer (effective size == InNumEditLayers)
+float4 MainPS(in float4 SVPos : SV_POSITION) : SV_Target0
+{
+    return MyTexture.Sample(MyTextureSampler, SVPos.xy);
+}
