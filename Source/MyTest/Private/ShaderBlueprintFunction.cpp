@@ -59,16 +59,37 @@ UShaderBlueprintFunctionLibrary::UShaderBlueprintFunctionLibrary(FObjectInitiali
 {
 }
 
-void UShaderBlueprintFunctionLibrary::DrawMyTestShader(const UObject* WorldContextObject, UTexture2D* InTex, UTextureRenderTarget2D* OutputRenderTarget, FVector4f InColor)
+void UShaderBlueprintFunctionLibrary::DrawMyTestShader(const UObject* WorldContextObject, UTexture2D* InTex, TArray<UTexture2D*> TextureArray, UTextureRenderTarget2D* OutputRenderTarget, FVector4f InColor)
 {
     FTextureRenderTarget2DResource* OutputRenderTargetResource = OutputRenderTarget->GameThread_GetRenderTargetResource()->GetTextureRenderTarget2DResource();
     
-    ENQUEUE_RENDER_COMMAND(DrawMyTestShader)([InTex, OutputRenderTargetResource, InColor](FRHICommandListImmediate& RHICmdList)
+    ENQUEUE_RENDER_COMMAND(DrawMyTestShader)([InTex, TextureArray, OutputRenderTargetResource, InColor](FRHICommandListImmediate& RHICmdList)
         {
             FRDGBuilder GraphBuilder(RHICmdList, RDG_EVENT_NAME("DrawMyTestShader"));
             FRDGTextureRef OutputTexture = GraphBuilder.RegisterExternalTexture(CreateRenderTarget(OutputRenderTargetResource->GetTextureRHI(), TEXT("DrawMyTestShader"))); 
 
             FRHITexture* RHITexture = InTex->GetResource()->GetTexture2DRHI(); 
+                // Texture Array
+                FRDGTextureDesc Desc = FRDGTextureDesc::Create2DArray(FIntPoint(256), PF_A32B32G32R32F, FClearValueBinding::None,
+                    TexCreate_RenderTargetable | TexCreate_TargetArraySlicesIndependently | TexCreate_ShaderResource,
+                    8, /*InNumMips = */1, /*InNumSamples = */1);
+                FRDGTextureRef InTexureArray = GraphBuilder.CreateTexture(Desc, TEXT("TestTextureArray"));
+                FRDGTextureSRVRef TextureArrayRef = GraphBuilder.CreateSRV(FRDGTextureSRVDesc::Create(InTexureArray));
+
+                TArray<UTexture2D*> InTexture = TextureArray;
+                for (int32 i = 0; i < InTexture.Num(); ++i)
+                {
+                    FRHITexture* RHITex = InTexture[i]->GetResource()->GetTexture2DRHI(); 
+                    TRefCountPtr<IPooledRenderTarget> LocalPooledRenderTarget = CreateRenderTarget(RHITex, TEXT("MyTestTexture"));
+                    FRDGTextureRef FinalRDGTexture = GraphBuilder.RegisterExternalTexture(LocalPooledRenderTarget, TEXT("MyTestRDGTexture"));
+
+                    FRHICopyTextureInfo CopyInfo;
+                    CopyInfo.Size = FIntVector(256,256,0);
+                    CopyInfo.DestSliceIndex = i;
+                    CopyInfo.SourcePosition = FIntVector(0, 0,0);
+
+                    AddCopyTexturePass(GraphBuilder, FinalRDGTexture, InTexureArray, CopyInfo);
+                }
             TRefCountPtr<IPooledRenderTarget> PooledRenderTarget = CreateRenderTarget(RHITexture, TEXT("MyTestTexture"));
             FRDGTextureRef RDGTexture = GraphBuilder.RegisterExternalTexture(PooledRenderTarget, TEXT("MyTestRDGTexture")); 
 
@@ -77,6 +98,7 @@ void UShaderBlueprintFunctionLibrary::DrawMyTestShader(const UObject* WorldConte
             Param->MyColor = InColor;
             Param->MyTexture = RDGTexture;
             Param->MyTextureSampler = TStaticSamplerState<SF_Trilinear>::GetRHI(); 
+            Param->InTextures = TextureArrayRef;
 
             FIntVector DrawSize = OutputTexture->Desc.GetSize();
             FMyTestPS::DrawSomething(GraphBuilder, Param, FIntRect(0,0,DrawSize.X, DrawSize.Y));

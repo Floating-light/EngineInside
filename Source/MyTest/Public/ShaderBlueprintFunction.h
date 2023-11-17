@@ -9,6 +9,6 @@ class MYTEST_API UShaderBlueprintFunctionLibrary : public UBlueprintFunctionLibr
 	GENERATED_UCLASS_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	static void DrawMyTestShader(const UObject* WorldContextObject,UTexture2D* InTex, class UTextureRenderTarget2D* OutputRenderTarget,FVector4f InColor);
+	static void DrawMyTestShader(const UObject* WorldContextObject,UTexture2D* InTex, TArray<UTexture2D*> TextureArray, class UTextureRenderTarget2D* OutputRenderTarget,FVector4f InColor);
 };
 
