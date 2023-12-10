@@ -39,7 +39,8 @@ public class MyTest : ModuleRules
                 "RenderCore",
                 "RHI",
 				"Projects",
-				"Engine"
+				"Engine",
+				"Landscape"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

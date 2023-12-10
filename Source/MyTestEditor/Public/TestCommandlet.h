@@ -12,5 +12,6 @@ class UTestCommandlet
 {
 	GENERATED_BODY()
 public:
+	// MyTestEditor.TestCommandlet
 	virtual int32 Main(const FString& CmdLineParams) override;
 };
