@@ -1,13 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using UnrealBuildTool.Rules;
 
-public class MyTest : ModuleRules
+public class MyTestEditor : ModuleRules
 {
-	public MyTest(ReadOnlyTargetRules Target) : base(Target)
+	public MyTestEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
@@ -39,7 +40,12 @@ public class MyTest : ModuleRules
                 "RenderCore",
                 "RHI",
 				"Projects",
-				"Engine"
+				"Engine",
+				"BlueprintGraph",
+				"StructUtils",
+				"LevelSequence",
+				"UMGEditor",
+				"UnrealEd"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

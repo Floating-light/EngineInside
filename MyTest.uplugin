@@ -19,6 +19,11 @@
 			"Name": "MyTest",
 			"Type": "Runtime",
 			"LoadingPhase": "PostConfigInit"
+		},
+		{
+			"Name": "MyTestEditor",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PostEngineInit"
 		}
 	]
 }

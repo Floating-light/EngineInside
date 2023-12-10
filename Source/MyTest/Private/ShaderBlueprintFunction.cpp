@@ -15,7 +15,7 @@ public:
         SHADER_PARAMETER(uint32, InTextureNum)
         SHADER_PARAMETER_RDG_TEXTURE(Texture2D, MyTexture)
         SHADER_PARAMETER_SAMPLER(SamplerState, MyTextureSampler)
-        SHADER_PARAMETER_RDG_TEXTURE_SRV(Texture2DArray<float4>, InTextures)
+        SHADER_PARAMETER_RDG_TEXTURE_SRV(Texture2DArray<float4>, InMergeTextures)
         RENDER_TARGET_BINDING_SLOTS()
     END_SHADER_PARAMETER_STRUCT()
 
@@ -70,7 +70,7 @@ void UShaderBlueprintFunctionLibrary::DrawMyTestShader(const UObject* WorldConte
 
             FRHITexture* RHITexture = InTex->GetResource()->GetTexture2DRHI(); 
                 // Texture Array
-                FRDGTextureDesc Desc = FRDGTextureDesc::Create2DArray(FIntPoint(256), PF_A32B32G32R32F, FClearValueBinding::None,
+                FRDGTextureDesc Desc = FRDGTextureDesc::Create2DArray(FIntPoint(256), PF_DXT1, FClearValueBinding::None,
                     TexCreate_RenderTargetable | TexCreate_TargetArraySlicesIndependently | TexCreate_ShaderResource,
                     8, /*InNumMips = */1, /*InNumSamples = */1);
                 FRDGTextureRef InTexureArray = GraphBuilder.CreateTexture(Desc, TEXT("TestTextureArray"));
@@ -98,7 +98,7 @@ void UShaderBlueprintFunctionLibrary::DrawMyTestShader(const UObject* WorldConte
             Param->MyColor = InColor;
             Param->MyTexture = RDGTexture;
             Param->MyTextureSampler = TStaticSamplerState<SF_Trilinear>::GetRHI(); 
-            Param->InTextures = TextureArrayRef;
+            Param->InMergeTextures = TextureArrayRef;
 
             FIntVector DrawSize = OutputTexture->Desc.GetSize();
             FMyTestPS::DrawSomething(GraphBuilder, Param, FIntRect(0,0,DrawSize.X, DrawSize.Y));

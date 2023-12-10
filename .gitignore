@@ -295,3 +295,4 @@ Engine/Extras/ThirdPartyNotUE/SDKs/HostLinux/**
 
 # Ignore Content
 /Content/
+/Binaries/

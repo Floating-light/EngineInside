@@ -17,16 +17,17 @@ Texture2DArray<float4> InMergeTextures; // Source texture for each individual ed
 float4 MainPS(in float4 SVPos : SV_POSITION) : SV_Target0
 {
     const float2 CurrentUV = SVPos.xy / float2(256, 256);
-    const int Size = 2;
-    const int Strip = 1.0f / Size;
+    const float Size = 2.0f;
+    const float Strip = 1.0f / Size;
     const int2 Rel = (CurrentUV / Strip); 
     const int Index = Rel.y + Rel.x * Size;
     
-    const float2 Coor = fmod(CurrentUV, Strip) / Strip;
-    int4 LoadCoordinates = int4(Coor, Index, 0);
-    
+    const float2 Coor = fmod(CurrentUV, Strip) ;
+    int4 LoadCoordinates = int4(Coor, 0, 0);
+	return InMergeTextures.Load(LoadCoordinates);
+	//return float4(Coor, 0, 1);
 	//return MyTexture.Sample(MyTextureSampler, SVPos.xy / float2(256, 256)); 
-    return float4(SVPos.xy, 0, 1);
+	//return float4(SVPos.xy / float2(256,256), 0, 1);
 	//return SVPos;
 	//return MyTexture;
 	
